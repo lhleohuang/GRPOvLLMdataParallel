@@ -1,0 +1,1 @@
+Use train_grpo.py as detailed on https://huggingface.co/docs/trl/main/en/grpo_trainer to launch training. Rest of the repo is a copy of the trl library. Modified files are trainer/grpo_trainer.py and extras/multi_vllm_client.py.
