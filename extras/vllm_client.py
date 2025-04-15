@@ -140,6 +140,7 @@ class VLLMClient:
         min_p: float = 0.0,
         max_tokens: int = 16,
         guided_decoding_regex: Optional[str] = None,
+        seed: Optional[int] = None  # Seed parameter
     ) -> list[list[int]]:
         """
         Generates model completions for the provided prompts.
@@ -169,20 +170,23 @@ class VLLMClient:
                 List of lists of token IDs representing the model-generated completions for each prompt.
         """
         url = f"http://{self.host}:{self.server_port}/generate/"
-        response = self.session.post(
-            url,
-            json={
-                "prompts": prompts,
-                "n": n,
-                "repetition_penalty": repetition_penalty,
-                "temperature": temperature,
-                "top_p": top_p,
-                "top_k": top_k,
-                "min_p": min_p,
-                "max_tokens": max_tokens,
-                "guided_decoding_regex": guided_decoding_regex,
-            },
-        )
+        payload = {
+            "prompts": prompts,
+            "n": n,
+            "repetition_penalty": repetition_penalty,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "min_p": min_p,
+            "max_tokens": max_tokens,
+            "guided_decoding_regex": guided_decoding_regex,
+        }
+
+        if seed is not None:
+            payload["seed"] = seed
+
+        response = self.session.post(url, json=payload)
+        
         if response.status_code == 200:
             return response.json()["completion_ids"]
         else:

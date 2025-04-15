@@ -131,6 +131,7 @@ class RepeatRandomSampler(Sampler):
         batch_size: int = 1,
         repeat_count: int = 1,
         seed: Optional[int] = None,
+        shuffle: bool = False,  # New flag to control shuffling
     ):
         self.data_source = data_source
         self.mini_repeat_count = mini_repeat_count
@@ -141,10 +142,15 @@ class RepeatRandomSampler(Sampler):
         self.generator = torch.Generator()  # Create a local random generator
         if seed is not None:
             self.generator.manual_seed(seed)
+        self.shuffle = shuffle
 
     def __iter__(self):
-        # E.g., [2, 4, 3, 1, 0, 6, 5] (num_samples = 7)
-        indexes = torch.randperm(self.num_samples, generator=self.generator).tolist()
+        # Use either a random permutation or a fixed order depending on self.shuffle
+        if self.shuffle:
+            # E.g., [2, 4, 3, 1, 0, 6, 5] (num_samples = 7)
+            indexes = torch.randperm(self.num_samples, generator=self.generator).tolist()
+        else:
+            indexes = list(range(self.num_samples))
 
         #    [2, 4, 3, 1, 0, 6, 5]
         # -> [[2, 4, 3], [1, 0, 6], [5]]  (batch_size = 3)
